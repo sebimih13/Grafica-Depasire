@@ -215,14 +215,34 @@ void RenderFunction(void)
 		std::vector<std::pair<GLfloat, GLfloat>> position = {
 			std::make_pair(-500.0f, 250.0f),
 			std::make_pair(-400.0f, 270.0f),
-			std::make_pair(-310.0f, 200.0f)
+			std::make_pair(-310.0f, 200.0f),
+			std::make_pair(-250.0f, 300.0f),
+			std::make_pair(-170.0f, 240.0f),
+			std::make_pair(-70.0f, 210.0f),
+
+			std::make_pair(10.0f, 250.0f),
+			std::make_pair(100.0f, 270.0f),
+			std::make_pair(190.0f, 200.0f),
+			std::make_pair(250.0f, 300.0f),
+			std::make_pair(330.0f, 240.0f),
+			std::make_pair(430.0f, 210.0f)
 			// TODO: add
 		};
 
 		std::vector<std::pair<GLfloat, GLfloat>> scale = {
 			std::make_pair(0.5f, 0.5f),
 			std::make_pair(0.7f, 0.7f),
-			std::make_pair(0.9f, 0.9f)
+			std::make_pair(0.9f, 0.9f),
+			std::make_pair(0.6f, 0.6f),
+			std::make_pair(0.8f, 0.8f),
+			std::make_pair(1.0f, 1.0f),
+
+			std::make_pair(0.5f, 0.5f),
+			std::make_pair(0.7f, 0.7f),
+			std::make_pair(0.9f, 0.9f),
+			std::make_pair(0.6f, 0.6f),
+			std::make_pair(0.8f, 0.8f),
+			std::make_pair(1.0f, 1.0f)
 			// TODO: add
 		};
 
