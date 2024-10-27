@@ -23,16 +23,44 @@ glm::mat4 resizeMatrix;
 
 void CreateVAOBackground()
 {
-	constexpr GLfloat Vertices[] = {
-		0.0f, 0.0f, 0.0f, 1.0f
+	constexpr GLfloat Vertices[] = {	
+		// tree
+		-50.0f, 0.0f, 0.0f, 1.0f,
+		50.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 80.0f, 0.0f, 1.0f,
+
+		-50.0f, 78.0f, 0.0f, 1.0f,
+		50.0f, 78.0f, 0.0f, 1.0f,
+		0.0f, 160.0f, 0.0f, 1.0f,
+
+		-15.0f, 0.0f, 0.0f, 1.0f,
+		15.0f, 0.0f, 0.0f, 1.0f,
+		15.0f, -80.0f, 0.0f, 1.0f,
+		-15.0f, -80.0f, 0.0f, 1.0f
 	};
 
 	constexpr GLfloat Colors[] = {
-		1.0f, 0.0f, 0.0f, 1.0f
+		// tree
+		0.0f, 0.502f, 0.251f, 1.0f,
+		0.0f, 0.502f, 0.251f, 1.0f,
+		0.0f, 0.502f, 0.251f, 1.0f,
+
+		0.0f, 0.502f, 0.251f, 1.0f,
+		0.0f, 0.502f, 0.251f, 1.0f,
+		0.0f, 0.502f, 0.251f, 1.0f,
+
+		0.729f, 0.478f, 0.341f, 1.0f,
+		0.729f, 0.478f, 0.341f, 1.0f,
+		0.729f, 0.478f, 0.341f, 1.0f,
+		0.729f, 0.478f, 0.341f, 1.0f
 	};
 
 	constexpr GLuint Indices[] = {
-		0
+		// tree
+		0, 1, 2,
+		3, 4, 5,
+		6, 7, 8,
+		6, 8, 9
 	};
 
 	glGenVertexArrays(1, &VaoIdBackground);
@@ -85,8 +113,7 @@ void DestroyShaders(void)
 
 void Initialize(void)
 {
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glPointSize(50.0f);
+	glClearColor(0.137f, 0.694f, 0.302f, 1.0f);
 
 	CreateVAOBackground();
 	CreateShaders();
@@ -104,7 +131,7 @@ void RenderFunction(void)
 	glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
 
 	glBindVertexArray(VaoIdBackground);
-	glDrawElements(GL_POINTS, 1, GL_UNSIGNED_INT, (void*)(0));
+	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, (void*)(0));
 	
 	glFlush();
 }
