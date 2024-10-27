@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <vector>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include "loadShaders.h"
@@ -42,7 +43,33 @@ void CreateVAOBackground()
 		xMin, 120.0f, 0.0f, 1.0f,
 		xMax, 120.0f, 0.0f, 1.0f,
 		xMax, -120.0f, 0.0f, 1.0f,
-		xMin, -120.0f, 0.0f, 1.0f
+		xMin, -120.0f, 0.0f, 1.0f,
+
+		// strip
+		-800.0f, 0.0f, 0.0f, 1.0f,
+		-700.0f, 0.0f, 0.0f, 1.0f,
+		-650.0f, 0.0f, 0.0f, 1.0f,
+		-550.0f, 0.0f, 0.0f, 1.0f,
+		-500.0f, 0.0f, 0.0f, 1.0f,
+		-400.0f, 0.0f, 0.0f, 1.0f,
+		-350.0f, 0.0f, 0.0f, 1.0f,
+		-250.0f, 0.0f, 0.0f, 1.0f,
+		-200.0f, 0.0f, 0.0f, 1.0f,
+		-100.0f, 0.0f, 0.0f, 1.0f,
+		-50.0f, 0.0f, 0.0f, 1.0f,
+		50.0f, 0.0f, 0.0f, 1.0f,
+		100.0f, 0.0f, 0.0f, 1.0f,
+		200.0f, 0.0f, 0.0f, 1.0f,
+		250.0f, 0.0f, 0.0f, 1.0f,
+		350.0f, 0.0f, 0.0f, 1.0f,
+		400.0f, 0.0f, 0.0f, 1.0f,
+		500.0f, 0.0f, 0.0f, 1.0f,
+		550.0f, 0.0f, 0.0f, 1.0f,
+		650.0f, 0.0f, 0.0f, 1.0f,
+		700.0f, 0.0f, 0.0f, 1.0f,
+		800.0f, 0.0f, 0.0f, 1.0f,
+		850.0f, 0.0f, 0.0f, 1.0f,
+		950.0f, 0.0f, 0.0f, 1.0f
 	};
 
 	constexpr GLfloat Colors[] = {
@@ -64,7 +91,31 @@ void CreateVAOBackground()
 		0.0f, 0.0f, 0.0f, 1.0f,
 		0.0f, 0.0f, 0.0f, 1.0f,
 		0.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
+		0.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f
 	};
 
 	constexpr GLuint Indices[] = {
@@ -76,7 +127,21 @@ void CreateVAOBackground()
 
 		// highway
 		10, 11, 12,
-		10, 12, 13
+		10, 12, 13,
+		
+		// strip
+		14, 15,
+		16, 17,
+		18, 19,
+		20, 21,
+		22, 23,
+		24, 25,
+		26, 27,
+		28, 29,
+		30, 31,
+		32, 33,
+		34, 35,
+		36, 37
 	};
 
 	glGenVertexArrays(1, &VaoIdBackground);
@@ -145,13 +210,38 @@ void RenderFunction(void)
 	// Draw background
 	glBindVertexArray(VaoIdBackground);
 
-	{ // tree-1
-		glm::mat4 traslateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-500.0f, 250.0f, 1.0f));
-		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
-		glm::mat4 myMatrix = resizeMatrix * traslateMatrix * scaleMatrix;
-		glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+	// trees
+	{
+		std::vector<std::pair<GLfloat, GLfloat>> position = {
+			std::make_pair(-500.0f, 250.0f),
+			std::make_pair(-400.0f, 270.0f),
+			std::make_pair(-310.0f, 200.0f)
+			// TODO: add
+		};
+
+		std::vector<std::pair<GLfloat, GLfloat>> scale = {
+			std::make_pair(0.5f, 0.5f),
+			std::make_pair(0.7f, 0.7f),
+			std::make_pair(0.9f, 0.9f)
+			// TODO: add
+		};
+
+		for (int i = 0; i < position.size() && i < scale.size(); i++)
+		{
+			const GLfloat& posX = position[i].first;
+			const GLfloat& posY = position[i].second;
+
+			const GLfloat& scaleX = scale[i].first;
+			const GLfloat& scaleY = scale[i].second;
+
+			glm::mat4 traslateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, 1.0f));
+			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scaleX, scaleY, 1.0f));
+			glm::mat4 myMatrix = resizeMatrix * traslateMatrix * scaleMatrix;
+			glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+
+			glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, (void*)(0));
+		}
 	}
-	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, (void*)(0));
 
 	{ // highway
 		glm::mat4 myMatrix = resizeMatrix;
@@ -159,6 +249,12 @@ void RenderFunction(void)
 	}
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(12 * sizeof(GLuint)));
 	
+	{ // strip
+		glm::mat4 myMatrix = resizeMatrix;
+		glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+	}
+	glDrawElements(GL_LINES , 24, GL_UNSIGNED_INT, (void*)(18 * sizeof(GLuint)));
+
 	glFlush();
 }
 
