@@ -1,78 +1,75 @@
-// Codul sursa este adaptat dupa OpenGLBook.com
-
-#include <windows.h>  // biblioteci care urmeaza sa fie incluse
-#include <stdlib.h> // necesare pentru citirea shader-elor
+#include <windows.h>
+#include <stdlib.h>
 #include <stdio.h>
-#include <GL/glew.h> // glew apare inainte de freeglut
-#include <GL/freeglut.h> // nu trebuie uitat freeglut.h
+#include <GL/glew.h>
+#include <GL/freeglut.h>
 #include "loadShaders.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 //////////////////////////////////////
 
-GLuint
-VaoId,
-VboId,
-ColorBufferId,
-ProgramId;
+constexpr GLuint winWidth = 1800, winHeight = 800;
+constexpr GLfloat xMin = -(winWidth / 2.0f), xMax = (winWidth / 2.0f), yMin = -(winHeight / 2.0f), yMax = (winHeight / 2.0f);
 
+GLuint VaoIdBackground, VboIdBackground, EboIdBackground;
+GLuint ProgramId;
+GLuint myMatrixUniformLocation;
 
-void CreateVBO(void)
+glm::mat4 resizeMatrix;
+
+void CreateVAOBackground()
 {
-	// varfurile 
-	GLfloat Vertices[] = {
-		0.5f,  0.5f, 0.0f, 1.0f,
-		0.5f, -0.5f, 0.0f, 1.0f,
-		-0.5f, -0.5f, 0.0f, 1.0f,
-		-0.5f, -0.5f, 0.0f, 1.0f,
-		-0.5f,  0.5f, 0.0f, 1.0f,
-		0.5f,  0.5f, 0.0f, 1.0f
+	constexpr GLfloat Vertices[] = {
+		0.0f, 0.0f, 0.0f, 1.0f
 	};
 
-	// culorile, ca atribute ale varfurilor
-	GLfloat Colors[] = {
-	  1.0f, 0.5f, 0.2f, 1.0f,
-	  1.0f, 0.5f, 0.2f, 1.0f,
-	  1.0f, 0.5f, 0.2f, 1.0f,
-	  1.0f, 0.5f, 0.2f, 1.0f,
-	  1.0f, 0.5f, 0.2f, 1.0f,
-	  1.0f, 0.5f, 0.2f, 1.0f,
+	constexpr GLfloat Colors[] = {
+		1.0f, 0.0f, 0.0f, 1.0f
 	};
 
-	// se creeaza un buffer nou
-	glGenBuffers(1, &VboId);
-	// este setat ca buffer curent
-	glBindBuffer(GL_ARRAY_BUFFER, VboId);
-	// varfurile sunt "copiate" in bufferul curent
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+	constexpr GLuint Indices[] = {
+		0
+	};
 
-	// se creeaza / se leaga un VAO (Vertex Array Object) - util cand se utilizeaza mai multe VBO
-	glGenVertexArrays(1, &VaoId);
-	glBindVertexArray(VaoId);
-	// se activeaza lucrul cu atribute; atributul 0 = pozitie
+	glGenVertexArrays(1, &VaoIdBackground);
+	glBindVertexArray(VaoIdBackground);
+
+	// Vertex Buffer
+	GLuint VboIdBackground;
+	glGenBuffers(1, &VboIdBackground);
+	glBindBuffer(GL_ARRAY_BUFFER, VboIdBackground);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices) + sizeof(Colors), NULL, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertices), Vertices);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(Vertices), sizeof(Colors), Colors);
+
+	glGenBuffers(1, &EboIdBackground);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EboIdBackground);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
+
+	// atribut 0 => (location = 0)
 	glEnableVertexAttribArray(0);
-	// 
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
-	// un nou buffer, pentru culoare
-	glGenBuffers(1, &ColorBufferId);
-	glBindBuffer(GL_ARRAY_BUFFER, ColorBufferId);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Colors), Colors, GL_STATIC_DRAW);
-	// atributul 1 =  culoare
+	// atribut 1 => (location = 1)
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (const GLvoid*)sizeof(Vertices));
 }
-void DestroyVBO(void)
+
+void DestroyVAOBackground(void)
 {
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glDeleteBuffers(1, &ColorBufferId);
-	glDeleteBuffers(1, &VboId);
+	glDeleteBuffers(1, &EboIdBackground);
+	glDeleteBuffers(1, &VboIdBackground);
 
 	glBindVertexArray(0);
-	glDeleteVertexArrays(1, &VaoId);
+	glDeleteVertexArrays(1, &VaoIdBackground);
 }
 
 void CreateShaders(void)
@@ -80,6 +77,7 @@ void CreateShaders(void)
 	ProgramId = LoadShaders("example.vert", "example.frag");
 	glUseProgram(ProgramId);
 }
+
 void DestroyShaders(void)
 {
 	glDeleteProgram(ProgramId);
@@ -87,34 +85,46 @@ void DestroyShaders(void)
 
 void Initialize(void)
 {
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // culoarea de fond a ecranului
-	CreateVBO();
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glPointSize(50.0f);
+
+	CreateVAOBackground();
 	CreateShaders();
+
+	myMatrixUniformLocation = glGetUniformLocation(ProgramId, "myMatrix");
+	resizeMatrix = glm::ortho(xMin, xMax, yMin, yMax);
 }
+
 void RenderFunction(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT);       
 
-	// Functiile de desenare
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glDrawArrays(GL_TRIANGLES, 3, 3);
+	// Draw background
+	glm::mat4 myMatrix = resizeMatrix;
+	glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
 
+	glBindVertexArray(VaoIdBackground);
+	glDrawElements(GL_POINTS, 1, GL_UNSIGNED_INT, (void*)(0));
+	
 	glFlush();
 }
+
 void Cleanup(void)
 {
 	DestroyShaders();
-	DestroyVBO();
+	DestroyVAOBackground();
 }
 
 int main(int argc, char* argv[])
 {
 	glutInit(&argc, argv);
+	
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-	glutInitWindowPosition(100, 100); // pozitia initiala a ferestrei
-	glutInitWindowSize(600, 600); //dimensiunile ferestrei
-	glutCreateWindow("Grafica pe calculator - primul exemplu"); // titlul ferestrei
-	glewInit(); // nu uitati de initializare glew; trebuie initializat inainte de a a initializa desenarea
+	glutInitWindowPosition(50, 100);
+	glutInitWindowSize(winWidth, winHeight);
+	glutCreateWindow("Depasire");
+	
+	glewInit();
 	Initialize();
 	glutDisplayFunc(RenderFunction);
 	glutCloseFunc(Cleanup);
