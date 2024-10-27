@@ -36,7 +36,13 @@ void CreateVAOBackground()
 		-15.0f, 0.0f, 0.0f, 1.0f,
 		15.0f, 0.0f, 0.0f, 1.0f,
 		15.0f, -80.0f, 0.0f, 1.0f,
-		-15.0f, -80.0f, 0.0f, 1.0f
+		-15.0f, -80.0f, 0.0f, 1.0f,
+
+		// highway
+		xMin, 120.0f, 0.0f, 1.0f,
+		xMax, 120.0f, 0.0f, 1.0f,
+		xMax, -120.0f, 0.0f, 1.0f,
+		xMin, -120.0f, 0.0f, 1.0f
 	};
 
 	constexpr GLfloat Colors[] = {
@@ -52,7 +58,13 @@ void CreateVAOBackground()
 		0.729f, 0.478f, 0.341f, 1.0f,
 		0.729f, 0.478f, 0.341f, 1.0f,
 		0.729f, 0.478f, 0.341f, 1.0f,
-		0.729f, 0.478f, 0.341f, 1.0f
+		0.729f, 0.478f, 0.341f, 1.0f, 
+
+		// highway
+		0.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
 	};
 
 	constexpr GLuint Indices[] = {
@@ -60,7 +72,11 @@ void CreateVAOBackground()
 		0, 1, 2,
 		3, 4, 5,
 		6, 7, 8,
-		6, 8, 9
+		6, 8, 9,
+
+		// highway
+		10, 11, 12,
+		10, 12, 13
 	};
 
 	glGenVertexArrays(1, &VaoIdBackground);
@@ -127,11 +143,21 @@ void RenderFunction(void)
 	glClear(GL_COLOR_BUFFER_BIT);       
 
 	// Draw background
-	glm::mat4 myMatrix = resizeMatrix;
-	glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
-
 	glBindVertexArray(VaoIdBackground);
+
+	{ // tree-1
+		glm::mat4 traslateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-500.0f, 250.0f, 1.0f));
+		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 1.0f));
+		glm::mat4 myMatrix = resizeMatrix * traslateMatrix * scaleMatrix;
+		glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+	}
 	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, (void*)(0));
+
+	{ // highway
+		glm::mat4 myMatrix = resizeMatrix;
+		glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+	}
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(12 * sizeof(GLuint)));
 	
 	glFlush();
 }
