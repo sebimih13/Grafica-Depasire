@@ -31,9 +31,9 @@ void CreateVAOBackground()
 		50.0f, 0.0f, 0.0f, 1.0f,
 		0.0f, 80.0f, 0.0f, 1.0f,
 
-		-50.0f, 78.0f, 0.0f, 1.0f,
-		50.0f, 78.0f, 0.0f, 1.0f,
-		0.0f, 160.0f, 0.0f, 1.0f,
+		-50.0f, 70.0f, 0.0f, 1.0f,
+		50.0f, 70.0f, 0.0f, 1.0f,
+		0.0f, 150.0f, 0.0f, 1.0f,
 
 		-15.0f, 0.0f, 0.0f, 1.0f,
 		15.0f, 0.0f, 0.0f, 1.0f,
@@ -47,6 +47,8 @@ void CreateVAOBackground()
 		xMin, -80.0f, 0.0f, 1.0f,
 
 		// strip
+		-950.0f, 0.0f, 0.0f, 1.0f,
+		-850.0f, 0.0f, 0.0f, 1.0f,
 		-800.0f, 0.0f, 0.0f, 1.0f,
 		-700.0f, 0.0f, 0.0f, 1.0f,
 		-650.0f, 0.0f, 0.0f, 1.0f,
@@ -93,6 +95,10 @@ void CreateVAOBackground()
 		0.0f, 0.0f, 0.0f, 1.0f,
 		0.0f, 0.0f, 0.0f, 1.0f,
 		0.0f, 0.0f, 0.0f, 1.0f,
+
+		// strip
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
@@ -142,7 +148,8 @@ void CreateVAOBackground()
 		30, 31,
 		32, 33,
 		34, 35,
-		36, 37
+		36, 37,
+		38, 39
 	};
 
 	glGenVertexArrays(1, &VaoIdBackground);
@@ -329,7 +336,7 @@ void RenderBackGround() {
 		glm::mat4 myMatrix = resizeMatrix;
 		glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
 	}
-	glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, (void*)(18 * sizeof(GLuint)));
+	glDrawElements(GL_LINES, 26, GL_UNSIGNED_INT, (void*)(18 * sizeof(GLuint)));
 }
 
 float speedGreenCar = 1.5f, posXGreenCar = 0.0f;
