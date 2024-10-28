@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <vector>
+#include <unordered_map>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include "loadShaders.h"
@@ -22,6 +23,8 @@ GLuint ProgramId;
 GLuint myMatrixUniformLocation;
 
 glm::mat4 resizeMatrix;
+
+std::unordered_map<char, bool> keyStates;
 
 void CreateVAOBackground()
 {
@@ -433,14 +436,12 @@ float speedRedCar = 1.5f, posXRedCar = 0.0f, posYRedCar = 0.0f;
 float turningAngle = 0;
 const int timer = 16;
 int codCol;
-unsigned lastSpeedKey = 0;
 bool colide = false;
 
 void resetState() {
 	speedGreenCar = 1.5f; posXGreenCar = 0.0f;
 	speedRedCar = 1.5f; posXRedCar = 0.0f; posYRedCar = 0.0f;
 	turningAngle = 0;
-	lastSpeedKey = 0;
 	codCol = 0;
 	colide = false;
 }
@@ -470,7 +471,7 @@ void checkColision() {
 	colide |= checkPointInRectangle(redCarXMin, redCarYMax, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
 }
 
-void recalcSpeed() {
+void recalcSpeed(unsigned int lastSpeedKey) {
 	switch (lastSpeedKey) {
 	case 'w':
 		speedRedCar += 0.002f * (15.0f - speedRedCar);
@@ -503,7 +504,28 @@ void idleFunction(int val) {
 		return;
 	}
 	posXGreenCar += speedGreenCar;
-	recalcSpeed();
+
+	// input
+	if (keyStates['w'] || keyStates['W'])
+	{
+		recalcSpeed('w');
+	}
+	
+	if (keyStates['s'] || keyStates['S'])
+	{
+		recalcSpeed('s');
+	}
+	
+	if (keyStates['a'] || keyStates['A'])
+	{
+		if (!colide) turningAngle += 2.0f;
+	}
+	
+	if (keyStates['d'] || keyStates['D'])
+	{
+		if (!colide) turningAngle -= 2.0f;
+	}
+
 	recalcAngle();
 	posXRedCar += speedRedCar * cos(glm::radians(abs(turningAngle)));
 	if(turningAngle > 0) posYRedCar += speedRedCar * sin(glm::radians(abs(turningAngle)));
@@ -514,29 +536,19 @@ void idleFunction(int val) {
 }
 
 
-void keyBoardFunc(unsigned char key, int x, int y) {
-	switch (key) {
-		case 'w':
-			lastSpeedKey = key;
-			break;
-		case 's':
-			lastSpeedKey = key;
-			break;
-		case ' ':
-			lastSpeedKey = key;
-			break;
-		case 'a':
-			if(!colide) turningAngle += 2.0f;
-			break;
-		case 'd':
-			if(!colide) turningAngle -= 2.0f;
-			break;
-		case 'r':
-			resetState();
-			break;
-		default:
-			break;
+void keyBoardFunc(unsigned char key, int x, int y)
+{
+	keyStates[key] = true;
+
+	if (key == 'r' || key == 'R')
+	{
+		resetState();
 	}
+}
+
+void keyBoardUpFunc(unsigned char key, int x, int y)
+{
+	keyStates[key] = false;
 }
 
 
@@ -588,6 +600,7 @@ int main(int argc, char* argv[])
 	glutDisplayFunc(RenderFunction);
 	glutTimerFunc(timer, idleFunction, 0);
 	glutKeyboardFunc(keyBoardFunc);
+	glutKeyboardUpFunc(keyBoardUpFunc);
 	glutCloseFunc(Cleanup);
 	glutMainLoop();
 }
