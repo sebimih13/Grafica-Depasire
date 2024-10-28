@@ -17,7 +17,7 @@ constexpr GLuint winWidth = 1800, winHeight = 800;
 constexpr GLfloat xMin = -(winWidth / 2.0f), xMax = (winWidth / 2.0f), yMin = -(winHeight / 2.0f), yMax = (winHeight / 2.0f);
 
 GLuint VaoIdBackground, VboIdBackground, EboIdBackground;
-GLuint VaoIdCars, VboIdCars, EboIdCars;
+GLuint VaoIdCars, VboIdCars, EboIdCars, codColLocation;
 GLuint ProgramId;
 GLuint myMatrixUniformLocation;
 
@@ -260,6 +260,7 @@ void Initialize(void)
 
 	myMatrixUniformLocation = glGetUniformLocation(ProgramId, "myMatrix");
 	resizeMatrix = glm::ortho(xMin, xMax, yMin, yMax);
+	codColLocation = glGetUniformLocation(ProgramId, "codColShader");
 }
 
 void RenderBackGround() {
@@ -335,7 +336,27 @@ float speedGreenCar = 1.5f, posXGreenCar = 0.0f;
 float speedRedCar = 1.5f, posXRedCar = 0.0f, posYRedCar = 0.0f;
 float turningAngle = 0;
 const int timer = 16;
+int codCol;
 unsigned lastSpeedKey = 0;
+bool colide = false;
+
+void resetState() {
+	speedGreenCar = 1.5f; posXGreenCar = 0.0f;
+	speedRedCar = 1.5f; posXRedCar = 0.0f; posYRedCar = 0.0f;
+	turningAngle = 0;
+	lastSpeedKey = 0;
+	codCol = 0;
+	colide = false;
+}
+
+void checkOnRoad() {
+	// starting poit of the car + how much it travaled so far + length / 2 * cos(turning angle) ( accounting for the rotatation)
+	float redCarYMin = -65.0f + posYRedCar + 50.0f * sin(glm::radians(turningAngle));
+	float redCarYMax = -15.0f + posYRedCar + 50.0f * sin(glm::radians(turningAngle));
+
+	if (redCarYMax > 85.0f) colide = true;
+	if (redCarYMin < -85.0f) colide = true;
+}
 
 void recalcSpeed() {
 	switch (lastSpeedKey) {
@@ -362,12 +383,20 @@ void recalcAngle() {
 }
 
 void idleFunction(int val) {
+	if (colide) {
+		codCol += 1;
+		codCol %= 2;
+		glutPostRedisplay();
+		glutTimerFunc(500, idleFunction, 0);
+		return;
+	}
 	posXGreenCar += speedGreenCar;
 	recalcSpeed();
 	recalcAngle();
 	posXRedCar += speedRedCar * cos(glm::radians(abs(turningAngle)));
 	if(turningAngle > 0) posYRedCar += speedRedCar * sin(glm::radians(abs(turningAngle)));
 	else posYRedCar -= speedRedCar * sin(glm::radians(abs(turningAngle)));
+	checkOnRoad();
 	glutPostRedisplay();
 	glutTimerFunc(timer, idleFunction, 0);
 }
@@ -385,10 +414,13 @@ void keyBoardFunc(unsigned char key, int x, int y) {
 			lastSpeedKey = key;
 			break;
 		case 'a':
-			turningAngle += 2.0f;
+			if(!colide) turningAngle += 2.0f;
 			break;
 		case 'd':
-			turningAngle -= 2.0f;
+			if(!colide) turningAngle -= 2.0f;
+			break;
+		case 'r':
+			resetState();
 			break;
 		default:
 			break;
@@ -405,10 +437,14 @@ void RenderCars() {
 	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(0));
 
 	//redCar
-	myMatrix = resizeMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(posXRedCar, posYRedCar, 0.0f));
+	glUniform1i(codColLocation, codCol);
+	myMatrix = resizeMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(posXRedCar, posYRedCar, 0.0f))
+							* glm::translate(glm::mat4(1.0f), glm::vec3(xMin + 50, -40, 0.0f))
+							* glm::rotate(glm::mat4(1.0f), glm::radians(turningAngle), glm::vec3(0.0f, 0.0f, 1.0f))
+							* glm::translate(glm::mat4(1.0f), glm::vec3(-xMin - 50, 40, 0.0f));
 	glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
 	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(4 * sizeof(GLuint)));
-
+	glUniform1i(codColLocation, 0);
 }
 
 void RenderFunction(void)
