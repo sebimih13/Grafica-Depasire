@@ -47,32 +47,20 @@ void CreateVAOBackground()
 		xMin, -80.0f, 0.0f, 1.0f,
 
 		// strip
-		-950.0f, 0.0f, 0.0f, 1.0f,
-		-850.0f, 0.0f, 0.0f, 1.0f,
-		-800.0f, 0.0f, 0.0f, 1.0f,
-		-700.0f, 0.0f, 0.0f, 1.0f,
-		-650.0f, 0.0f, 0.0f, 1.0f,
-		-550.0f, 0.0f, 0.0f, 1.0f,
-		-500.0f, 0.0f, 0.0f, 1.0f,
-		-400.0f, 0.0f, 0.0f, 1.0f,
-		-350.0f, 0.0f, 0.0f, 1.0f,
-		-250.0f, 0.0f, 0.0f, 1.0f,
-		-200.0f, 0.0f, 0.0f, 1.0f,
-		-100.0f, 0.0f, 0.0f, 1.0f,
 		-50.0f, 0.0f, 0.0f, 1.0f,
 		50.0f, 0.0f, 0.0f, 1.0f,
-		100.0f, 0.0f, 0.0f, 1.0f,
-		200.0f, 0.0f, 0.0f, 1.0f,
-		250.0f, 0.0f, 0.0f, 1.0f,
-		350.0f, 0.0f, 0.0f, 1.0f,
-		400.0f, 0.0f, 0.0f, 1.0f,
-		500.0f, 0.0f, 0.0f, 1.0f,
-		550.0f, 0.0f, 0.0f, 1.0f,
-		650.0f, 0.0f, 0.0f, 1.0f,
-		700.0f, 0.0f, 0.0f, 1.0f,
-		800.0f, 0.0f, 0.0f, 1.0f,
-		850.0f, 0.0f, 0.0f, 1.0f,
-		950.0f, 0.0f, 0.0f, 1.0f
+
+		// beach
+		-1.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, -1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 1.0f,
+		
+		// river
+		-1.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, -1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 1.0f
 	};
 
 	constexpr GLfloat Colors[] = {
@@ -99,30 +87,18 @@ void CreateVAOBackground()
 		// strip
 		1.0f, 1.0f, 1.0f, 1.0f,
 		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f
+
+		// beach
+		0.996f, 0.886f, 0.49f, 1.0f,
+		0.996f, 0.886f, 0.49f, 1.0f,
+		0.996f, 0.886f, 0.49f, 1.0f,
+		0.996f, 0.886f, 0.49f, 1.0f,
+
+		// river
+		0.0f, 0.639f, 0.91f, 1.0f,
+		0.0f, 0.639f, 0.91f, 1.0f,
+		0.0f, 0.639f, 0.91f, 1.0f,
+		0.0f, 0.639f, 0.91f, 1.0f
 	};
 
 	constexpr GLuint Indices[] = {
@@ -138,18 +114,12 @@ void CreateVAOBackground()
 		
 		// strip
 		14, 15,
-		16, 17,
-		18, 19,
-		20, 21,
-		22, 23,
-		24, 25,
-		26, 27,
-		28, 29,
-		30, 31,
-		32, 33,
-		34, 35,
-		36, 37,
-		38, 39
+
+		// beach
+		16, 17, 18, 19,
+
+		// river
+		20, 21, 22, 23
 	};
 
 	glGenVertexArrays(1, &VaoIdBackground);
@@ -283,13 +253,23 @@ void RenderBackGround() {
 			std::make_pair(-170.0f, 240.0f),
 			std::make_pair(-70.0f, 210.0f),
 
-			std::make_pair(10.0f, 250.0f),
-			std::make_pair(100.0f, 270.0f),
-			std::make_pair(190.0f, 200.0f),
-			std::make_pair(250.0f, 300.0f),
-			std::make_pair(330.0f, 240.0f),
-			std::make_pair(430.0f, 210.0f)
-			// TODO: add
+			std::make_pair(10.0f, 220.0f),
+			std::make_pair(100.0f, 240.0f),
+			std::make_pair(190.0f, 170.0f),
+			std::make_pair(250.0f, 270.0f),
+			std::make_pair(330.0f, 210.0f),
+			std::make_pair(430.0f, 180.0f),
+
+			std::make_pair(510.0f, 250.0f),
+			std::make_pair(600.0f, 270.0f),
+			std::make_pair(690.0f, 230.0f),
+			std::make_pair(750.0f, 300.0f),
+			std::make_pair(830.0f, 270.0f),
+
+			std::make_pair(-810.0f, 240.0f),
+			std::make_pair(-750.0f, 260.0f),
+			std::make_pair(-660.0f, 230.0f),
+			std::make_pair(-590.0f, 270.0f)
 		};
 
 		std::vector<std::pair<GLfloat, GLfloat>> scale = {
@@ -305,8 +285,19 @@ void RenderBackGround() {
 			std::make_pair(0.9f, 0.9f),
 			std::make_pair(0.6f, 0.6f),
 			std::make_pair(0.8f, 0.8f),
-			std::make_pair(1.0f, 1.0f)
-			// TODO: add
+			std::make_pair(1.0f, 1.0f),
+
+			std::make_pair(0.5f, 0.5f),
+			std::make_pair(0.7f, 0.7f),
+			std::make_pair(0.9f, 0.9f),
+			std::make_pair(0.6f, 0.6f),
+			std::make_pair(0.8f, 0.8f),
+
+			std::make_pair(0.5f, 0.5f),
+			std::make_pair(0.7f, 0.7f),
+			std::make_pair(0.9f, 0.9f),
+			std::make_pair(0.6f, 0.6f),
+			std::make_pair(0.8f, 0.8f)
 		};
 
 		for (int i = 0; i < position.size() && i < scale.size(); i++)
@@ -332,11 +323,109 @@ void RenderBackGround() {
 	}
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(12 * sizeof(GLuint)));
 
-	{ // strip
-		glm::mat4 myMatrix = resizeMatrix;
-		glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+	// strip
+	for (float posX = xMin; posX <= xMax; posX += 150.0f)
+	{
+		{
+			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(posX, 0.0f, 1.0f));
+			glm::mat4 myMatrix = resizeMatrix * translateMatrix;
+			glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+		}
+		glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, (void*)(18 * sizeof(GLuint)));
 	}
-	glDrawElements(GL_LINES, 26, GL_UNSIGNED_INT, (void*)(18 * sizeof(GLuint)));
+
+	{ // river
+		std::vector<std::pair<GLfloat, GLfloat>> position = {
+			std::make_pair(-850, -240.0f),
+			std::make_pair(-700, -210.0f),
+			std::make_pair(-510, -180.0f),
+			std::make_pair(-270, -210.0f),
+			std::make_pair(70, -230.0f),
+			std::make_pair(440, -250.0f),
+			std::make_pair(750, -270.0f)
+		};
+
+		std::vector<std::pair<GLfloat, GLfloat>> scale = {
+			std::make_pair(50.0f, 80.0f),
+			std::make_pair(100.0f, 90.0f),
+			std::make_pair(100.0f, 75.0f),
+			std::make_pair(150.0f, 80.0f),
+			std::make_pair(200.0f, 85.0f),
+			std::make_pair(180.0f, 80.0f),
+			std::make_pair(150.0f, 75.0f)
+		};
+
+		for (int i = 0; i < position.size() && i < scale.size(); i++)
+		{
+			const GLfloat& posX = position[i].first;
+			const GLfloat& posY = position[i].second;
+
+			const GLfloat& scaleX = scale[i].first;
+			const GLfloat& scaleY = scale[i].second;
+
+			glm::mat4 traslateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, 1.0f));
+			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scaleX, scaleY, 1.0f));
+			glm::mat4 myMatrix = resizeMatrix * traslateMatrix * scaleMatrix;
+			glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+
+			glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(24 * sizeof(GLuint)));
+		}
+	}
+
+	// beach
+	{
+		std::vector<std::pair<GLfloat, GLfloat>> position = {
+			std::make_pair(-850, -180.0f),
+			std::make_pair(-700, -150.0f),
+			std::make_pair(-510, -120.0f),
+			std::make_pair(-270, -150.0f),
+			std::make_pair(70, -170.0f),
+			std::make_pair(440, -190.0f),
+			std::make_pair(750, -210.0f),
+
+			std::make_pair(-850, -330.0f),
+			std::make_pair(-700, -300.0f),
+			std::make_pair(-510, -270.0f),
+			std::make_pair(-270, -300.0f),
+			std::make_pair(70, -320.0f),
+			std::make_pair(440, -340.0f),
+			std::make_pair(750, -360.0f),
+		};
+
+		std::vector<std::pair<GLfloat, GLfloat>> scale = {
+			std::make_pair(50.0f, 20.0f),
+			std::make_pair(100.0f, 30.0f),
+			std::make_pair(100.0f, 15.0f),
+			std::make_pair(150.0f, 20.0f),
+			std::make_pair(200.0f, 25.0f),
+			std::make_pair(180.0f, 20.0f),
+			std::make_pair(150.0f, 15.0f),
+
+			std::make_pair(50.0f, 20.0f),
+			std::make_pair(100.0f, 30.0f),
+			std::make_pair(100.0f, 15.0f),
+			std::make_pair(150.0f, 20.0f),
+			std::make_pair(200.0f, 25.0f),
+			std::make_pair(180.0f, 20.0f),
+			std::make_pair(150.0f, 15.0f),
+		};
+
+		for (int i = 0; i < position.size() && i < scale.size(); i++)
+		{
+			const GLfloat& posX = position[i].first;
+			const GLfloat& posY = position[i].second;
+
+			const GLfloat& scaleX = scale[i].first;
+			const GLfloat& scaleY = scale[i].second;
+
+			glm::mat4 traslateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, 1.0f));
+			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scaleX, scaleY, 1.0f));
+			glm::mat4 myMatrix = resizeMatrix * traslateMatrix * scaleMatrix;
+			glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+
+			glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(20 * sizeof(GLuint)));
+		}
+	}
 }
 
 float speedGreenCar = 1.5f, posXGreenCar = 0.0f;
