@@ -17,6 +17,7 @@ constexpr GLuint winWidth = 1800, winHeight = 800;
 constexpr GLfloat xMin = -(winWidth / 2.0f), xMax = (winWidth / 2.0f), yMin = -(winHeight / 2.0f), yMax = (winHeight / 2.0f);
 
 GLuint VaoIdBackground, VboIdBackground, EboIdBackground;
+GLuint VaoIdCars, VboIdCars, EboIdCars;
 GLuint ProgramId;
 GLuint myMatrixUniformLocation;
 
@@ -40,10 +41,10 @@ void CreateVAOBackground()
 		-15.0f, -80.0f, 0.0f, 1.0f,
 
 		// highway
-		xMin, 120.0f, 0.0f, 1.0f,
-		xMax, 120.0f, 0.0f, 1.0f,
-		xMax, -120.0f, 0.0f, 1.0f,
-		xMin, -120.0f, 0.0f, 1.0f,
+		xMin, 80.0f, 0.0f, 1.0f,
+		xMax, 80.0f, 0.0f, 1.0f,
+		xMax, -80.0f, 0.0f, 1.0f,
+		xMin, -80.0f, 0.0f, 1.0f,
 
 		// strip
 		-800.0f, 0.0f, 0.0f, 1.0f,
@@ -168,6 +169,60 @@ void CreateVAOBackground()
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (const GLvoid*)sizeof(Vertices));
 }
 
+void CreateVAOCars() {
+	GLfloat Vertices[] = {
+		//GreenCar
+		xMin + 300, -65.0f, 1.0f, 1.0f,
+		xMin + 400, -65.0f, 1.0f, 1.0f,
+		xMin + 400, -15.0f, 1.0f, 1.0f,
+		xMin + 300, -15.0f, 1.0f, 1.0f,
+
+		//RedCar
+		xMin, -65.0f, 1.0f, 1.0f,
+		xMin + 100, -65.0f, 1.0f, 1.0f,
+		xMin + 100, -15.0f, 1.0f, 1.0f,
+		xMin, -15.0f, 1.0f, 1.0f
+
+	};
+
+	GLfloat Colors[] = {
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f
+	};
+
+	GLuint Indices[] = {
+		0, 1, 2, 3,
+		4, 5, 6, 7
+	};
+
+	glGenVertexArrays(1, &VaoIdCars);
+	glBindVertexArray(VaoIdCars);
+
+	glGenBuffers(1, &VboIdCars);
+	glBindBuffer(GL_ARRAY_BUFFER, VboIdCars);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices) + sizeof(Colors), NULL, GL_STATIC_DRAW);
+
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertices), Vertices);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(Vertices), sizeof(Colors), Colors);
+
+	glGenBuffers(1, &EboIdCars);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EboIdCars);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (const GLvoid*)sizeof(Vertices));
+}
+
 void DestroyVAOBackground(void)
 {
 	glDisableVertexAttribArray(1);
@@ -176,9 +231,12 @@ void DestroyVAOBackground(void)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDeleteBuffers(1, &EboIdBackground);
 	glDeleteBuffers(1, &VboIdBackground);
+	glDeleteBuffers(1, &EboIdCars);
+	glDeleteBuffers(1, &VboIdCars);
 
 	glBindVertexArray(0);
 	glDeleteVertexArrays(1, &VaoIdBackground);
+	glDeleteVertexArrays(1, &VaoIdCars);
 }
 
 void CreateShaders(void)
@@ -197,17 +255,14 @@ void Initialize(void)
 	glClearColor(0.137f, 0.694f, 0.302f, 1.0f);
 
 	CreateVAOBackground();
+	CreateVAOCars();
 	CreateShaders();
 
 	myMatrixUniformLocation = glGetUniformLocation(ProgramId, "myMatrix");
 	resizeMatrix = glm::ortho(xMin, xMax, yMin, yMax);
 }
 
-void RenderFunction(void)
-{
-	glClear(GL_COLOR_BUFFER_BIT);       
-
-	// Draw background
+void RenderBackGround() {
 	glBindVertexArray(VaoIdBackground);
 
 	// trees
@@ -268,12 +323,99 @@ void RenderFunction(void)
 		glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
 	}
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(12 * sizeof(GLuint)));
-	
+
 	{ // strip
 		glm::mat4 myMatrix = resizeMatrix;
 		glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
 	}
-	glDrawElements(GL_LINES , 24, GL_UNSIGNED_INT, (void*)(18 * sizeof(GLuint)));
+	glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, (void*)(18 * sizeof(GLuint)));
+}
+
+float speedGreenCar = 1.5f, posXGreenCar = 0.0f;
+float speedRedCar = 1.5f, posXRedCar = 0.0f, posYRedCar = 0.0f;
+float turningAngle = 0;
+const int timer = 16;
+unsigned lastSpeedKey = 0;
+
+void recalcSpeed() {
+	switch (lastSpeedKey) {
+	case 'w':
+		speedRedCar += 0.002f * (15.0f - speedRedCar);
+		break;
+	case 's':
+		speedRedCar -= 0.08f;
+		break;
+	default:
+		speedRedCar -= 0.005f;
+		break;
+	}
+
+	if (speedRedCar > 15.0f) speedRedCar = 15.0f;
+	if (speedRedCar < 1.0f) speedRedCar = 1.0f;
+}
+
+void recalcAngle() {
+	if (turningAngle > 0) turningAngle -= glm::min(0.5f, turningAngle);
+	else turningAngle -= glm::max(-0.5f, turningAngle);
+	if (turningAngle > 45) turningAngle = 45;
+	if (turningAngle < -45) turningAngle = -45;
+}
+
+void idleFunction(int val) {
+	posXGreenCar += speedGreenCar;
+	recalcSpeed();
+	recalcAngle();
+	posXRedCar += speedRedCar * cos(glm::radians(abs(turningAngle)));
+	if(turningAngle > 0) posYRedCar += speedRedCar * sin(glm::radians(abs(turningAngle)));
+	else posYRedCar -= speedRedCar * sin(glm::radians(abs(turningAngle)));
+	glutPostRedisplay();
+	glutTimerFunc(timer, idleFunction, 0);
+}
+
+
+void keyBoardFunc(unsigned char key, int x, int y) {
+	switch (key) {
+		case 'w':
+			lastSpeedKey = key;
+			break;
+		case 's':
+			lastSpeedKey = key;
+			break;
+		case ' ':
+			lastSpeedKey = key;
+			break;
+		case 'a':
+			turningAngle += 2.0f;
+			break;
+		case 'd':
+			turningAngle -= 2.0f;
+			break;
+		default:
+			break;
+	}
+}
+
+
+void RenderCars() {
+	glBindVertexArray(VaoIdCars);
+
+	//greencar
+	glm::mat4 myMatrix = resizeMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(posXGreenCar, 0.0f, 0.0f));
+	glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(0));
+
+	//redCar
+	myMatrix = resizeMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(posXRedCar, posYRedCar, 0.0f));
+	glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(4 * sizeof(GLuint)));
+
+}
+
+void RenderFunction(void)
+{
+	glClear(GL_COLOR_BUFFER_BIT);       
+	RenderBackGround();
+	RenderCars();
 
 	glFlush();
 }
@@ -296,6 +438,8 @@ int main(int argc, char* argv[])
 	glewInit();
 	Initialize();
 	glutDisplayFunc(RenderFunction);
+	glutTimerFunc(timer, idleFunction, 0);
+	glutKeyboardFunc(keyBoardFunc);
 	glutCloseFunc(Cleanup);
 	glutMainLoop();
 }
