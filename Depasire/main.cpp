@@ -349,13 +349,29 @@ void resetState() {
 	colide = false;
 }
 
-void checkOnRoad() {
-	// starting poit of the car + how much it travaled so far + length / 2 * cos(turning angle) ( accounting for the rotatation)
+bool checkPointInRectangle(float px, float py, float xMin, float xMax, float yMin, float yMax) {
+	if (xMin <= px && px <= xMax && yMin <= py && py <= yMax) return true;
+	return false;
+}
+
+void checkColision() {
+	// starting point of the car + how much it travaled so far + width / 2 * (1 - cos(turning angle)) ( accounting for the rotatation)
+	float redCarXMin = xMin + posXRedCar + 25.0f * (1 - cos(glm::radians(turningAngle)));
+	float redCarXMax = xMin + 100 + posXRedCar + 25.0f * (1 - cos(glm::radians(turningAngle)));
+	// starting point of the car + how much it travaled so far + length / 2 * sin(turning angle) ( accounting for the rotatation)
 	float redCarYMin = -65.0f + posYRedCar + 50.0f * sin(glm::radians(turningAngle));
 	float redCarYMax = -15.0f + posYRedCar + 50.0f * sin(glm::radians(turningAngle));
 
 	if (redCarYMax > 85.0f) colide = true;
 	if (redCarYMin < -85.0f) colide = true;
+
+	float greenCarXMin = xMin + 300 + posXGreenCar, greeCarXMax = xMin + 400 + posXGreenCar;
+	float greenCarYMin = -65, greenCarYMax = -15;
+
+	colide |= checkPointInRectangle(redCarXMax, redCarYMin, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
+	colide |= checkPointInRectangle(redCarXMax, redCarYMax, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
+	colide |= checkPointInRectangle(redCarXMin, redCarYMin, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
+	colide |= checkPointInRectangle(redCarXMin, redCarYMax, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
 }
 
 void recalcSpeed() {
@@ -372,7 +388,7 @@ void recalcSpeed() {
 	}
 
 	if (speedRedCar > 15.0f) speedRedCar = 15.0f;
-	if (speedRedCar < 1.0f) speedRedCar = 1.0f;
+	if (speedRedCar < 1.5f) speedRedCar = 1.5f;
 }
 
 void recalcAngle() {
@@ -396,7 +412,7 @@ void idleFunction(int val) {
 	posXRedCar += speedRedCar * cos(glm::radians(abs(turningAngle)));
 	if(turningAngle > 0) posYRedCar += speedRedCar * sin(glm::radians(abs(turningAngle)));
 	else posYRedCar -= speedRedCar * sin(glm::radians(abs(turningAngle)));
-	checkOnRoad();
+	checkColision();
 	glutPostRedisplay();
 	glutTimerFunc(timer, idleFunction, 0);
 }
