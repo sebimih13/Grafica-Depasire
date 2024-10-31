@@ -452,23 +452,27 @@ bool checkPointInRectangle(float px, float py, float xMin, float xMax, float yMi
 }
 
 void checkColision() {
-	// starting point of the car + how much it travaled so far + width / 2 * (1 - cos(turning angle)) ( accounting for the rotatation)
-	float redCarXMin = xMin + posXRedCar + 25.0f * (1 - cos(glm::radians(turningAngle)));
-	float redCarXMax = xMin + 100 + posXRedCar + 25.0f * (1 - cos(glm::radians(turningAngle)));
-	// starting point of the car + how much it travaled so far + length / 2 * sin(turning angle) ( accounting for the rotatation)
-	float redCarYMin = -65.0f + posYRedCar + 50.0f * sin(glm::radians(turningAngle));
-	float redCarYMax = -15.0f + posYRedCar + 50.0f * sin(glm::radians(turningAngle));
-
-	if (redCarYMax > 85.0f) colide = true;
-	if (redCarYMin < -85.0f) colide = true;
-
 	float greenCarXMin = xMin + 300 + posXGreenCar, greeCarXMax = xMin + 400 + posXGreenCar;
 	float greenCarYMin = -65, greenCarYMax = -15;
 
-	colide |= checkPointInRectangle(redCarXMax, redCarYMin, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
-	colide |= checkPointInRectangle(redCarXMax, redCarYMax, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
-	colide |= checkPointInRectangle(redCarXMin, redCarYMin, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
-	colide |= checkPointInRectangle(redCarXMin, redCarYMax, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
+	float newLowerLeftX = xMin + 50.0f + posXRedCar - 50.0f * cos(glm::radians(turningAngle)) + 25.0f * sin(glm::radians(turningAngle));
+	float newLowerLeftY = -40.0f + posYRedCar - 25.0f * cos(glm::radians(turningAngle)) - 50.0f * sin(glm::radians(turningAngle));
+	colide |= checkPointInRectangle(newLowerLeftX, newLowerLeftY, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
+
+	float newUpperLeftX = xMin + 50.0f + posXRedCar - 50.0f * cos(glm::radians(turningAngle)) - 25.0f * sin(glm::radians(turningAngle));
+	float newUpperLeftY = -40.0f + posYRedCar + 25.0f * cos(glm::radians(turningAngle)) - 50.0f * sin(glm::radians(turningAngle));
+	colide |= checkPointInRectangle(newUpperLeftX, newUpperLeftY, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
+
+	float newUpperRightX = xMin + 50.0f + posXRedCar + 50.0f * cos(glm::radians(turningAngle)) - 25.0f * sin(glm::radians(turningAngle));
+	float newUpperRightY = -40.0f + posYRedCar + 25.0f * cos(glm::radians(turningAngle)) + 50.0f * sin(glm::radians(turningAngle));
+	colide |= checkPointInRectangle(newUpperRightX, newUpperRightY, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
+
+	float newLowerRightX = xMin + 50.0f + posXRedCar + 50.0f * cos(glm::radians(turningAngle)) + 25.0f * sin(glm::radians(turningAngle));
+	float newLowerRightY = -40.0f + posYRedCar - 25.0f * cos(glm::radians(turningAngle)) + 50.0f * sin(glm::radians(turningAngle));
+	colide |= checkPointInRectangle(newLowerRightX, newLowerRightY, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
+
+	if (newLowerLeftY < -85.0f || newUpperLeftY < -85.0f || newUpperRightY < -85.0f || newLowerRightY < -85.0f) colide = true;
+	if (newLowerLeftY > 85.0f || newUpperLeftY > 85.0f || newUpperRightY > 85.0f || newLowerRightY > 85.0f) colide = true;
 }
 
 void recalcSpeed(unsigned int lastSpeedKey) {
@@ -496,6 +500,7 @@ void recalcAngle() {
 }
 
 void idleFunction(int val) {
+	checkColision();
 	if (colide) {
 		codCol += 1;
 		codCol %= 2;
@@ -527,10 +532,8 @@ void idleFunction(int val) {
 	}
 
 	recalcAngle();
-	posXRedCar += speedRedCar * cos(glm::radians(abs(turningAngle)));
-	if(turningAngle > 0) posYRedCar += speedRedCar * sin(glm::radians(abs(turningAngle)));
-	else posYRedCar -= speedRedCar * sin(glm::radians(abs(turningAngle)));
-	checkColision();
+	posXRedCar += speedRedCar * cos(glm::radians(turningAngle));
+	posYRedCar += speedRedCar * sin(glm::radians(turningAngle));
 	glutPostRedisplay();
 	glutTimerFunc(timer, idleFunction, 0);
 }
