@@ -160,10 +160,10 @@ void CreateVAOCars() {
 		xMin + 300, -15.0f, 1.0f, 1.0f,
 
 		//RedCar
-		xMin, -65.0f, 1.0f, 1.0f,
-		xMin + 100, -65.0f, 1.0f, 1.0f,
-		xMin + 100, -15.0f, 1.0f, 1.0f,
-		xMin, -15.0f, 1.0f, 1.0f
+		xMin + 50, -65.0f, 1.0f, 1.0f,
+		xMin + 150, -65.0f, 1.0f, 1.0f,
+		xMin + 150, -15.0f, 1.0f, 1.0f,
+		xMin + 50, -15.0f, 1.0f, 1.0f
 
 	};
 
@@ -241,8 +241,9 @@ void Initialize(void)
 	CreateShaders();
 
 	myMatrixUniformLocation = glGetUniformLocation(ProgramId, "myMatrix");
-	resizeMatrix = glm::ortho(xMin, xMax, yMin, yMax);
 	codColLocation = glGetUniformLocation(ProgramId, "codColShader");
+
+	resizeMatrix = glm::ortho(xMin, xMax, yMin, yMax);
 }
 
 void RenderBackground() {
@@ -486,7 +487,7 @@ void RenderBackground() {
 }
 
 float speedGreenCar = 1.5f, posXGreenCar = 0.0f;
-float speedRedCar = 1.5f, posXRedCar = 0.0f, posYRedCar = 0.0f;
+float speedRedCar = 1.5f, posYRedCar = 0.0f;
 float turningAngle = 0;
 const int timer = 16;
 int codCol;
@@ -494,7 +495,7 @@ bool colide = false;
 
 void resetState() {
 	speedGreenCar = 1.5f; posXGreenCar = 0.0f;
-	speedRedCar = 1.5f; posXRedCar = 0.0f; posYRedCar = 0.0f;
+	speedRedCar = 1.5f; posYRedCar = 0.0f;
 	turningAngle = 0;
 	codCol = 0;
 	colide = false;
@@ -509,19 +510,19 @@ void checkColision() {
 	float greenCarXMin = xMin + 300 + posXGreenCar, greeCarXMax = xMin + 400 + posXGreenCar;
 	float greenCarYMin = -65, greenCarYMax = -15;
 
-	float newLowerLeftX = xMin + 50.0f + posXRedCar - 50.0f * cos(glm::radians(turningAngle)) + 25.0f * sin(glm::radians(turningAngle));
+	float newLowerLeftX = xMin + 50.0f - 50.0f * cos(glm::radians(turningAngle)) + 25.0f * sin(glm::radians(turningAngle));
 	float newLowerLeftY = -40.0f + posYRedCar - 25.0f * cos(glm::radians(turningAngle)) - 50.0f * sin(glm::radians(turningAngle));
 	colide |= checkPointInRectangle(newLowerLeftX, newLowerLeftY, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
 
-	float newUpperLeftX = xMin + 50.0f + posXRedCar - 50.0f * cos(glm::radians(turningAngle)) - 25.0f * sin(glm::radians(turningAngle));
+	float newUpperLeftX = xMin + 50.0f - 50.0f * cos(glm::radians(turningAngle)) - 25.0f * sin(glm::radians(turningAngle));
 	float newUpperLeftY = -40.0f + posYRedCar + 25.0f * cos(glm::radians(turningAngle)) - 50.0f * sin(glm::radians(turningAngle));
 	colide |= checkPointInRectangle(newUpperLeftX, newUpperLeftY, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
 
-	float newUpperRightX = xMin + 50.0f + posXRedCar + 50.0f * cos(glm::radians(turningAngle)) - 25.0f * sin(glm::radians(turningAngle));
+	float newUpperRightX = xMin + 50.0f + 50.0f * cos(glm::radians(turningAngle)) - 25.0f * sin(glm::radians(turningAngle));
 	float newUpperRightY = -40.0f + posYRedCar + 25.0f * cos(glm::radians(turningAngle)) + 50.0f * sin(glm::radians(turningAngle));
 	colide |= checkPointInRectangle(newUpperRightX, newUpperRightY, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
 
-	float newLowerRightX = xMin + 50.0f + posXRedCar + 50.0f * cos(glm::radians(turningAngle)) + 25.0f * sin(glm::radians(turningAngle));
+	float newLowerRightX = xMin + 50.0f + 50.0f * cos(glm::radians(turningAngle)) + 25.0f * sin(glm::radians(turningAngle));
 	float newLowerRightY = -40.0f + posYRedCar - 25.0f * cos(glm::radians(turningAngle)) + 50.0f * sin(glm::radians(turningAngle));
 	colide |= checkPointInRectangle(newLowerRightX, newLowerRightY, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
 
@@ -586,7 +587,7 @@ void idleFunction(int val) {
 	}
 
 	recalcAngle();
-	posXRedCar += speedRedCar * cos(glm::radians(turningAngle));
+	// posXRedCar += speedRedCar * cos(glm::radians(turningAngle));
 	posYRedCar += speedRedCar * sin(glm::radians(turningAngle));
 	glutPostRedisplay();
 	glutTimerFunc(timer, idleFunction, 0);
@@ -625,7 +626,7 @@ void RenderCars() {
 
 	//redCar
 	glUniform1i(codColLocation, codCol);
-	myMatrix = resizeMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(posXRedCar, posYRedCar, 0.0f))
+	myMatrix = resizeMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, posYRedCar, 0.0f))
 							* glm::translate(glm::mat4(1.0f), glm::vec3(xMin + 50, -40, 0.0f))
 							* glm::rotate(glm::mat4(1.0f), glm::radians(turningAngle), glm::vec3(0.0f, 0.0f, 1.0f))
 							* glm::translate(glm::mat4(1.0f), glm::vec3(-xMin - 50, 40, 0.0f));
