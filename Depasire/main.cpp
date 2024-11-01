@@ -18,6 +18,7 @@ constexpr GLuint winWidth = 1800, winHeight = 800;
 constexpr GLfloat xMin = -(winWidth / 2.0f), xMax = (winWidth / 2.0f), yMin = -(winHeight / 2.0f), yMax = (winHeight / 2.0f);
 
 GLuint VaoIdBackground, VboIdBackground, EboIdBackground;
+GLuint VaoIdCar, VboIdCar, EboIdCar;
 GLuint VaoIdCars, VboIdCars, EboIdCars, codColLocation;
 GLuint ProgramId;
 GLuint myMatrixUniformLocation;
@@ -131,7 +132,6 @@ void CreateVAOBackground()
 	glBindVertexArray(VaoIdBackground);
 
 	// Vertex Buffer
-	GLuint VboIdBackground;
 	glGenBuffers(1, &VboIdBackground);
 	glBindBuffer(GL_ARRAY_BUFFER, VboIdBackground);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices) + sizeof(Colors), NULL, GL_STATIC_DRAW);
@@ -205,7 +205,132 @@ void CreateVAOCars() {
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (const GLvoid*)sizeof(Vertices));
 }
 
-void DestroyVAOBackground(void)
+void CreateVAOCar()
+{
+	GLfloat Vertices[] = {
+		// car
+		-50.0f, 25.0f, 0.0f, 1.0f,
+		50.0f, 25.0f, 0.0f, 1.0f,
+		50.0f, -25.0f, 0.0f, 1.0f,
+		-50.0f, -25.0f, 0.0f, 1.0f,
+
+		// brake lights
+		-50.0f, 25.0f, 0.0f, 1.0f,
+		-40.0f, 25.0f, 0.0f, 1.0f,
+		-40.0f, 10.0f, 0.0f, 1.0f,
+		-50.0f, 10.0f, 0.0f, 1.0f,
+
+		-50.0f, -25.0f, 0.0f, 1.0f,
+		-50.0f, -10.0f, 0.0f, 1.0f,
+		-40.0f, -10.0f, 0.0f, 1.0f,
+		-40.0f, -25.0f, 0.0f, 1.0f,
+
+		// headlights
+		50.0f, 25.0f, 0.0f, 1.0f,
+		40.0f, 25.0f, 0.0f, 1.0f,
+		40.0f, 5.0f, 0.0f, 1.0f,
+		50.0f, 5.0f, 0.0f, 1.0f,
+
+		50.0f, -25.0f, 0.0f, 1.0f,
+		50.0f, -5.0f, 0.0f, 1.0f,
+		40.0f, -5.0f, 0.0f, 1.0f,
+		40.0f, -25.0f, 0.0f, 1.0f,
+
+		// side-view mirror
+		30.0f, 25.0f, 0.0f, 1.0f,
+		30.0f, 35.0f, 0.0f, 1.0f,
+		25.0f, 35.0f, 0.0f, 1.0f,
+		25.0f, 25.0f, 0.0f, 1.0f,
+
+		30.0f, -25.0f, 0.0f, 1.0f,
+		30.0f, -35.0f, 0.0f, 1.0f,
+		25.0f, -35.0f, 0.0f, 1.0f,
+		25.0f, -25.0f, 0.0f, 1.0f
+	};
+
+	GLfloat Colors[] = {
+		// car
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+
+		// brake lights
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+
+		// headlights
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+
+		// Side-view mirror
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 1.0f
+	};
+
+	GLuint Indices[] = {
+		// car
+		0, 1, 2, 3,
+
+		// brake lights
+		4, 5, 6, 7,
+		8, 9, 10, 11,
+
+		// headlights
+		12, 13, 14, 15,
+		16, 17, 18, 19,
+
+		// Side-view mirror
+		20, 21, 22, 23,
+		24, 25, 26, 27
+	};
+
+	glGenVertexArrays(1, &VaoIdCar);
+	glBindVertexArray(VaoIdCar);
+
+	// Vertex Buffer
+	GLuint VboIdCar;
+	glGenBuffers(1, &VboIdCar);
+	glBindBuffer(GL_ARRAY_BUFFER, VboIdCar);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices) + sizeof(Colors), NULL, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertices), Vertices);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(Vertices), sizeof(Colors), Colors);
+
+	glGenBuffers(1, &EboIdCar);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EboIdCar);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
+
+	// atribut 0 => (location = 0)
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+	// atribut 1 => (location = 1)
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (const GLvoid*)sizeof(Vertices));
+}
+
+void DestroyVAOs(void)
 {
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(0);
@@ -215,10 +340,13 @@ void DestroyVAOBackground(void)
 	glDeleteBuffers(1, &VboIdBackground);
 	glDeleteBuffers(1, &EboIdCars);
 	glDeleteBuffers(1, &VboIdCars);
+	glDeleteBuffers(1, &EboIdCar);
+	glDeleteBuffers(1, &VboIdCar);
 
 	glBindVertexArray(0);
 	glDeleteVertexArrays(1, &VaoIdBackground);
 	glDeleteVertexArrays(1, &VaoIdCars);
+	glDeleteVertexArrays(1, &VaoIdCar);
 }
 
 void CreateShaders(void)
@@ -238,6 +366,7 @@ void Initialize(void)
 
 	CreateVAOBackground();
 	CreateVAOCars();
+	CreateVAOCar();
 	CreateShaders();
 
 	myMatrixUniformLocation = glGetUniformLocation(ProgramId, "myMatrix");
@@ -633,6 +762,14 @@ void RenderCars() {
 	glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
 	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(4 * sizeof(GLuint)));
 	glUniform1i(codColLocation, 0);
+
+	// new car
+	glBindVertexArray(VaoIdCar);
+
+	myMatrix = resizeMatrix;
+	glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+
+	glDrawElements(GL_QUADS, 28, GL_UNSIGNED_INT, (void*)(0));
 }
 
 void RenderFunction(void)
@@ -647,7 +784,7 @@ void RenderFunction(void)
 void Cleanup(void)
 {
 	DestroyShaders();
-	DestroyVAOBackground();
+	DestroyVAOs();
 }
 
 int main(int argc, char* argv[])
