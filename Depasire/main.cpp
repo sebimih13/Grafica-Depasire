@@ -337,11 +337,24 @@ void RenderBackground() {
 	// strip
 	for (float posX = xMin; posX <= xMax; posX += 150.0f)
 	{
+		float newPosX = posX - distance;
+
+		if (newPosX - 50.0f < xMin)
 		{
-			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(posX, 0.0f, 1.0f));
+			glm::mat4 translateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(newPosX, 0.0f, 1.0f));
 			glm::mat4 myMatrix = resizeMatrix * translateMatrix;
 			glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+
+			glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, (void*)(18 * sizeof(GLuint)));
+
+			float overflow = xMin - newPosX;
+			newPosX = xMax - overflow;
 		}
+
+		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(newPosX, 0.0f, 1.0f));
+		glm::mat4 myMatrix = resizeMatrix * translateMatrix;
+		glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+
 		glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, (void*)(18 * sizeof(GLuint)));
 	}
 
