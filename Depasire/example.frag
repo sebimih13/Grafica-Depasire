@@ -21,6 +21,16 @@ void main(void)
 			out_Color = vec4(1.0, 1.0, 1.0, 1.0);
 			break;
 		}
+		case 2: // headlights
+		{
+			out_Color = vec4(0.969, 0.969, 0.004, 1.0);
+			break;
+		}
+		case 3: // break lights
+		{
+			out_Color = vec4(0.565, 0.0, 0.0, 1.0);
+			break;
+		}
 		default:
 		{
 			out_Color = ex_Color;
@@ -28,4 +38,3 @@ void main(void)
 		}
 	}
 }
-

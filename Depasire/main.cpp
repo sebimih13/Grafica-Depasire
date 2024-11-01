@@ -28,6 +28,7 @@ glm::mat4 resizeMatrix;
 std::unordered_map<char, bool> keyStates;
 
 float distance = 0;
+bool leftTurn = false, rightTurn = false, brake = false;
 
 void CreateVAOBackground()
 {
@@ -256,10 +257,10 @@ void CreateVAOCar()
 		0.0f, 1.0f, 0.0f, 1.0f,
 
 		// brake lights
-		1.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f, 1.0f,
+		0.969f, 0.243f, 0.133f, 1.0f,
+		0.969f, 0.243f, 0.133f, 1.0f,
+		0.969f, 0.243f, 0.133f, 1.0f,
+		0.969f, 0.243f, 0.133f, 1.0f,
 
 		1.0f, 0.0f, 0.0f, 1.0f,
 		1.0f, 0.0f, 0.0f, 1.0f,
@@ -293,17 +294,17 @@ void CreateVAOCar()
 		// car
 		0, 1, 2, 3,
 
+		// Side-view mirror
+		20, 21, 22, 23,
+		24, 25, 26, 27,
+
 		// brake lights
 		4, 5, 6, 7,
 		8, 9, 10, 11,
 
 		// headlights
 		12, 13, 14, 15,
-		16, 17, 18, 19,
-
-		// Side-view mirror
-		20, 21, 22, 23,
-		24, 25, 26, 27
+		16, 17, 18, 19
 	};
 
 	glGenVertexArrays(1, &VaoIdCar);
@@ -737,11 +738,31 @@ void keyBoardFunc(unsigned char key, int x, int y)
 	{
 		resetState();
 	}
+
+	switch (key)
+	{
+		case 'a': leftTurn	= true;	break;
+		case 'A': leftTurn	= true;	break;
+		case 'd': rightTurn = true; break;
+		case 'D': rightTurn = true; break;
+		case 's': brake		= true;	break;
+		case 'S': brake		= true;	break;
+	}
 }
 
 void keyBoardUpFunc(unsigned char key, int x, int y)
 {
 	keyStates[key] = false;
+
+	switch (key)
+	{
+		case 'a': leftTurn	= false; break;
+		case 'A': leftTurn	= false; break;
+		case 'd': rightTurn = false; break;
+		case 'D': rightTurn = false; break;
+		case 's': brake		= false; break;
+		case 'S': brake		= false; break;
+	}
 }
 
 
@@ -763,13 +784,42 @@ void RenderCars() {
 	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(4 * sizeof(GLuint)));
 	glUniform1i(codColLocation, 0);
 
+	// TODO
 	// new car
 	glBindVertexArray(VaoIdCar);
 
 	myMatrix = resizeMatrix;
 	glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
 
-	glDrawElements(GL_QUADS, 28, GL_UNSIGNED_INT, (void*)(0));
+	glDrawElements(GL_QUADS, 12, GL_UNSIGNED_INT, (void*)(0));
+
+	codCol = 0;
+	if (brake)
+	{
+		codCol = 3;
+	}
+	glUniform1i(codColLocation, codCol);
+	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(12 * sizeof(GLuint)));
+	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(16 * sizeof(GLuint)));
+
+	codCol = 0;
+	if (leftTurn)
+	{
+		codCol = 2;
+	}
+	glUniform1i(codColLocation, codCol);
+	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(20 * sizeof(GLuint)));
+
+	codCol = 0;
+	if (rightTurn)
+	{
+		codCol = 2;
+	}
+	glUniform1i(codColLocation, codCol);
+	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(24 * sizeof(GLuint)));
+
+	codCol = 0;
+	glUniform1i(codColLocation, codCol);
 }
 
 void RenderFunction(void)
