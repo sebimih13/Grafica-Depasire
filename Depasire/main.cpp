@@ -310,14 +310,21 @@ void RenderBackground() {
 			GLfloat posX = position[i].first - distance;
 			GLfloat posY = position[i].second;
 
-			if (posX < xMin)
+			const GLfloat& scaleX = scale[i].first;
+			const GLfloat& scaleY = scale[i].second;
+
+			if (posX - scaleX < xMin)
 			{
+				glm::mat4 traslateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, 1.0f));
+				glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scaleX, scaleY, 1.0f));
+				glm::mat4 myMatrix = resizeMatrix * traslateMatrix * scaleMatrix;
+				glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+
+				glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, (void*)(0));
+
 				float overflow = xMin - posX;
 				posX = xMax - overflow;
 			}
-
-			const GLfloat& scaleX = scale[i].first;
-			const GLfloat& scaleY = scale[i].second;
 
 			glm::mat4 traslateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, 1.0f));
 			glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(scaleX, scaleY, 1.0f));
