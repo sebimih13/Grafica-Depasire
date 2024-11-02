@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <vector>
+#include <random>
 #include <unordered_map>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
@@ -21,7 +22,7 @@ GLuint VaoIdBackground, VboIdBackground, EboIdBackground;
 GLuint VaoIdCar, VboIdCar, EboIdCar;
 GLuint VaoIdCars, VboIdCars, EboIdCars, codColLocation;
 GLuint ProgramId;
-GLuint myMatrixUniformLocation;
+GLuint myMatrixUniformLocation, changeCarColorUniformLocation, newCarColorUniformLocation;
 
 glm::mat4 resizeMatrix;
 
@@ -372,6 +373,9 @@ void Initialize(void)
 
 	myMatrixUniformLocation = glGetUniformLocation(ProgramId, "myMatrix");
 	codColLocation = glGetUniformLocation(ProgramId, "codColShader");
+
+	changeCarColorUniformLocation = glGetUniformLocation(ProgramId, "changeCarColor");
+	newCarColorUniformLocation = glGetUniformLocation(ProgramId, "newCarColor");
 
 	resizeMatrix = glm::ortho(xMin, xMax, yMin, yMax);
 }
@@ -765,6 +769,22 @@ void keyBoardUpFunc(unsigned char key, int x, int y)
 	}
 }
 
+// TODO: de adaugat alte culori + de retinut culoarea in struct
+glm::vec4 getRandomCarColor()
+{
+	static const std::vector<glm::vec4> colors = {
+		glm::vec4(0.502f, 0.612f, 0.075f, 1.0f),
+		glm::vec4(0.925f, 0.925f, 0.639f, 1.0f),
+		glm::vec4(1.0f, 0.918f, 0.38f, 1.0f),
+		glm::vec4(0.929f, 0.549f, 0.616f, 1.0f),
+		glm::vec4(0.282f, 0.792f, 0.894f, 1.0f),
+		glm::vec4(1.0f, 0.455f, 0.0f, 1.0f),
+		glm::vec4(0.149f, 0.737f, 0.6f, 1.0f)
+	};
+
+	int randomIndex = std::rand() % colors.size();
+	return colors[randomIndex];
+}
 
 void RenderCars() {
 	glBindVertexArray(VaoIdCars);
@@ -784,14 +804,20 @@ void RenderCars() {
 	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(4 * sizeof(GLuint)));
 	glUniform1i(codColLocation, 0);
 
-	// TODO
-	// new car
+	// TODO: test
+	// new car design
 	glBindVertexArray(VaoIdCar);
 
-	myMatrix = resizeMatrix;
+	myMatrix = resizeMatrix; // TODO: adauga translate + rotate
 	glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
 
+	glUniform1i(changeCarColorUniformLocation, 1);
+	glm::vec4 newColor = glm::vec4(1.0f, 0.455f, 0.0f, 1.0f);
+	glUniform4fv(newCarColorUniformLocation, 1, &newColor[0]);
+
 	glDrawElements(GL_QUADS, 12, GL_UNSIGNED_INT, (void*)(0));
+
+	glUniform1i(changeCarColorUniformLocation, 0);
 
 	codCol = 0;
 	if (brake)

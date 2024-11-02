@@ -7,9 +7,17 @@ in vec4 ex_Color;
 out vec4 out_Color;
 
 uniform int codColShader;
+uniform int changeCarColor;
+uniform vec4 newCarColor;
 
 void main(void)
 {
+	if (changeCarColor == 1)
+	{
+		out_Color = newCarColor;
+		return;
+	}
+
 	switch(codColShader) {
 		case 0:
 		{
