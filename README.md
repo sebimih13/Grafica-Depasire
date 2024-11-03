@@ -13,3 +13,10 @@ DEPASIRE: Simulati o "depasire": o masina / un dreptunghi se deplaseaza uniform 
 
 # Demo
 <img src="https://github.com/sebimih13/Grafica-Depasire/blob/main/.github/resources/demo.gif">
+
+# Controls
+W = accelereaza  
+S = franeaza  
+A = virează la stânga  
+D = virează la dreapta  
+R = resetează  
