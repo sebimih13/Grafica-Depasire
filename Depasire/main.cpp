@@ -29,7 +29,6 @@ glm::mat4 resizeMatrix;
 std::unordered_map<char, bool> keyStates;
 
 float distance = 0;
-bool leftTurn = false, rightTurn = false, brake = false;
 
 void CreateVAOBackground()
 {
@@ -149,60 +148,6 @@ void CreateVAOBackground()
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
 	// atribut 1 => (location = 1)
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (const GLvoid*)sizeof(Vertices));
-}
-
-void CreateVAOCars() {
-	GLfloat Vertices[] = {
-		//GreenCar
-		xMin + 300, -65.0f, 1.0f, 1.0f,
-		xMin + 400, -65.0f, 1.0f, 1.0f,
-		xMin + 400, -15.0f, 1.0f, 1.0f,
-		xMin + 300, -15.0f, 1.0f, 1.0f,
-
-		//RedCar
-		xMin + 50, -65.0f, 1.0f, 1.0f,
-		xMin + 150, -65.0f, 1.0f, 1.0f,
-		xMin + 150, -15.0f, 1.0f, 1.0f,
-		xMin + 50, -15.0f, 1.0f, 1.0f
-
-	};
-
-	GLfloat Colors[] = {
-		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-
-		1.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f, 1.0f
-	};
-
-	GLuint Indices[] = {
-		0, 1, 2, 3,
-		4, 5, 6, 7
-	};
-
-	glGenVertexArrays(1, &VaoIdCars);
-	glBindVertexArray(VaoIdCars);
-
-	glGenBuffers(1, &VboIdCars);
-	glBindBuffer(GL_ARRAY_BUFFER, VboIdCars);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices) + sizeof(Colors), NULL, GL_STATIC_DRAW);
-
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertices), Vertices);
-	glBufferSubData(GL_ARRAY_BUFFER, sizeof(Vertices), sizeof(Colors), Colors);
-
-	glGenBuffers(1, &EboIdCars);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EboIdCars);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (const GLvoid*)sizeof(Vertices));
 }
@@ -367,7 +312,6 @@ void Initialize(void)
 	glClearColor(0.137f, 0.694f, 0.302f, 1.0f);
 
 	CreateVAOBackground();
-	CreateVAOCars();
 	CreateVAOCar();
 	CreateShaders();
 
@@ -620,17 +564,96 @@ void RenderBackground() {
 	}
 }
 
-float speedGreenCar = 1.5f, posXGreenCar = 0.0f;
-float speedRedCar = 1.5f, posYRedCar = 0.0f;
-float turningAngle = 0;
+class Car {
+public:
+	glm::vec4 color;
+	float carPozX;
+	float carPozY;
+	float turningAngle = 0.0f;
+	bool OppositeDirection;
+	bool leftTurn = false, rightTurn = false, brake = false;
+
+public:
+	Car(float carPozX, float carPozY,  bool Opposit = false) {
+		OppositeDirection = Opposit;
+		if (Opposit) turningAngle = 180.0f;
+		color = getRandomCarColor();
+		this->carPozX = carPozX;
+		this->carPozY = carPozY;
+	}
+
+	glm::vec4 getRandomCarColor()
+	{
+		static const std::vector<glm::vec4> colors = {
+			glm::vec4(0.502f, 0.612f, 0.075f, 1.0f),
+			glm::vec4(0.925f, 0.925f, 0.639f, 1.0f),
+			glm::vec4(1.0f, 0.918f, 0.38f, 1.0f),
+			glm::vec4(0.929f, 0.549f, 0.616f, 1.0f),
+			glm::vec4(0.282f, 0.792f, 0.894f, 1.0f),
+			glm::vec4(1.0f, 0.455f, 0.0f, 1.0f),
+			glm::vec4(0.149f, 0.737f, 0.6f, 1.0f)
+		};
+
+		int randomIndex = std::rand() % colors.size();
+		return colors[randomIndex];
+	}
+
+	void drawCar() {
+		glm::mat4 myMatrix = resizeMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(carPozX, carPozY, 0)) 
+										  * glm::rotate(glm::mat4(1.0f), glm::radians(turningAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+		glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
+		glUniform1i(changeCarColorUniformLocation, 1);
+		glUniform4fv(newCarColorUniformLocation, 1, &color[0]);
+
+		glDrawElements(GL_QUADS, 12, GL_UNSIGNED_INT, (void*)(0));
+
+		glUniform1i(changeCarColorUniformLocation, 0);
+
+		int codCol = 0;
+		if (brake)
+		{
+			codCol = 3;
+		}
+		glUniform1i(codColLocation, codCol);
+		glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(12 * sizeof(GLuint)));
+		glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(16 * sizeof(GLuint)));
+
+		codCol = 0;
+		if (leftTurn)
+		{
+			codCol = 2;
+		}
+		glUniform1i(codColLocation, codCol);
+		glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(20 * sizeof(GLuint)));
+
+		codCol = 0;
+		if (rightTurn)
+		{
+			codCol = 2;
+		}
+		glUniform1i(codColLocation, codCol);
+		glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(24 * sizeof(GLuint)));
+
+		codCol = 0;
+		glUniform1i(codColLocation, codCol);
+	}
+};
+
+Car drivenCar(-750.0f, 0.0f);
+std::vector<Car> generatedCars;
+
+float speedDrivenCar = 1.5f;
 const int timer = 16;
 int codCol;
+float lastGeneratedCar = 0, lastGeneratedCarOpposite = 0;
 bool colide = false;
 
 void resetState() {
-	speedGreenCar = 1.5f; posXGreenCar = 0.0f;
-	speedRedCar = 1.5f; posYRedCar = 0.0f;
-	turningAngle = 0;
+	generatedCars.clear();
+	drivenCar.carPozX = -750.0f;
+	drivenCar.carPozY = 0.0f;
+	drivenCar.turningAngle = 0.0f;
+	speedDrivenCar = 1.5f;
 	codCol = 0;
 	colide = false;
 }
@@ -641,24 +664,30 @@ bool checkPointInRectangle(float px, float py, float xMin, float xMax, float yMi
 }
 
 void checkColision() {
-	float greenCarXMin = xMin + 300 + posXGreenCar, greeCarXMax = xMin + 400 + posXGreenCar;
-	float greenCarYMin = -65, greenCarYMax = -15;
+	float newLowerLeftX = drivenCar.carPozX - 50.0f * cos(glm::radians(drivenCar.turningAngle)) + 25.0f * sin(glm::radians(drivenCar.turningAngle));
+	float newLowerLeftY = drivenCar.carPozY - 25.0f * cos(glm::radians(drivenCar.turningAngle)) - 50.0f * sin(glm::radians(drivenCar.turningAngle));
 
-	float newLowerLeftX = xMin + 50.0f - 50.0f * cos(glm::radians(turningAngle)) + 25.0f * sin(glm::radians(turningAngle));
-	float newLowerLeftY = -40.0f + posYRedCar - 25.0f * cos(glm::radians(turningAngle)) - 50.0f * sin(glm::radians(turningAngle));
-	colide |= checkPointInRectangle(newLowerLeftX, newLowerLeftY, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
+	float newUpperLeftX = drivenCar.carPozX - 50.0f * cos(glm::radians(drivenCar.turningAngle)) - 25.0f * sin(glm::radians(drivenCar.turningAngle));
+	float newUpperLeftY = drivenCar.carPozY + 25.0f * cos(glm::radians(drivenCar.turningAngle)) - 50.0f * sin(glm::radians(drivenCar.turningAngle));
 
-	float newUpperLeftX = xMin + 50.0f - 50.0f * cos(glm::radians(turningAngle)) - 25.0f * sin(glm::radians(turningAngle));
-	float newUpperLeftY = -40.0f + posYRedCar + 25.0f * cos(glm::radians(turningAngle)) - 50.0f * sin(glm::radians(turningAngle));
-	colide |= checkPointInRectangle(newUpperLeftX, newUpperLeftY, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
+	float newUpperRightX = drivenCar.carPozX + 50.0f * cos(glm::radians(drivenCar.turningAngle)) - 25.0f * sin(glm::radians(drivenCar.turningAngle));
+	float newUpperRightY = drivenCar.carPozY + 25.0f * cos(glm::radians(drivenCar.turningAngle)) + 50.0f * sin(glm::radians(drivenCar.turningAngle));
 
-	float newUpperRightX = xMin + 50.0f + 50.0f * cos(glm::radians(turningAngle)) - 25.0f * sin(glm::radians(turningAngle));
-	float newUpperRightY = -40.0f + posYRedCar + 25.0f * cos(glm::radians(turningAngle)) + 50.0f * sin(glm::radians(turningAngle));
-	colide |= checkPointInRectangle(newUpperRightX, newUpperRightY, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
+	float newLowerRightX = drivenCar.carPozX + 50.0f * cos(glm::radians(drivenCar.turningAngle)) + 25.0f * sin(glm::radians(drivenCar.turningAngle));
+	float newLowerRightY = drivenCar.carPozY - 25.0f * cos(glm::radians(drivenCar.turningAngle)) + 50.0f * sin(glm::radians(drivenCar.turningAngle));
 
-	float newLowerRightX = xMin + 50.0f + 50.0f * cos(glm::radians(turningAngle)) + 25.0f * sin(glm::radians(turningAngle));
-	float newLowerRightY = -40.0f + posYRedCar - 25.0f * cos(glm::radians(turningAngle)) + 50.0f * sin(glm::radians(turningAngle));
-	colide |= checkPointInRectangle(newLowerRightX, newLowerRightY, greenCarXMin, greeCarXMax, greenCarYMin, greenCarYMax);
+
+
+	for (auto x : generatedCars) {
+		float XMin = -50 + x.carPozX, XMax = XMin + 100;
+		float YMin = -25 + x.carPozY, YMax = YMin + 50;
+
+		colide |= checkPointInRectangle(newLowerLeftX, newLowerLeftY, XMin, XMax, YMin, YMax);
+		colide |= checkPointInRectangle(newUpperLeftX, newUpperLeftY, XMin, XMax, YMin, YMax);
+		colide |= checkPointInRectangle(newUpperRightX, newUpperRightY, XMin, XMax, YMin, YMax);
+		colide |= checkPointInRectangle(newLowerRightX, newLowerRightY, XMin, XMax, YMin, YMax);
+
+	};
 
 	if (newLowerLeftY < -85.0f || newUpperLeftY < -85.0f || newUpperRightY < -85.0f || newLowerRightY < -85.0f) colide = true;
 	if (newLowerLeftY > 85.0f || newUpperLeftY > 85.0f || newUpperRightY > 85.0f || newLowerRightY > 85.0f) colide = true;
@@ -667,25 +696,79 @@ void checkColision() {
 void recalcSpeed(unsigned int lastSpeedKey) {
 	switch (lastSpeedKey) {
 	case 'w':
-		speedRedCar += 0.002f * (15.0f - speedRedCar);
+		speedDrivenCar += 0.002f * (15.0f - speedDrivenCar);
 		break;
 	case 's':
-		speedRedCar -= 0.08f;
+		speedDrivenCar -= 0.08f;
 		break;
 	default:
-		speedRedCar -= 0.005f;
+		speedDrivenCar -= 0.005f;
 		break;
 	}
 
-	if (speedRedCar > 15.0f) speedRedCar = 15.0f;
-	if (speedRedCar < 1.5f) speedRedCar = 1.5f;
+	if (speedDrivenCar > 15.0f) speedDrivenCar = 15.0f;
+	if (speedDrivenCar < 1.0f) speedDrivenCar = 1.0f;
 }
 
 void recalcAngle() {
-	if (turningAngle > 0) turningAngle -= glm::min(0.5f, turningAngle);
-	else turningAngle -= glm::max(-0.5f, turningAngle);
-	if (turningAngle > 45) turningAngle = 45;
-	if (turningAngle < -45) turningAngle = -45;
+	if (drivenCar.turningAngle > 0) drivenCar.turningAngle -= glm::min(0.5f, drivenCar.turningAngle);
+	else drivenCar.turningAngle -= glm::max(-0.5f, drivenCar.turningAngle);
+	if (drivenCar.turningAngle > 45) drivenCar.turningAngle = 45;
+	if (drivenCar.turningAngle < -45) drivenCar.turningAngle = -45;
+}
+
+
+void updatePosition() {
+	for (auto& x : generatedCars) {
+		x.carPozX -= speedDrivenCar;
+		if (x.OppositeDirection) x.carPozX -= 1.5f;
+		else x.carPozX += 1.5f;
+	}
+
+	lastGeneratedCar += speedDrivenCar - 1.5f;
+	lastGeneratedCarOpposite += speedDrivenCar + 1.5f;
+}
+
+void eraseCars() {
+	for (int i = 0; i < generatedCars.size(); i++) {
+		if (generatedCars[i].carPozX <= -950.0f) {
+			generatedCars.erase(generatedCars.begin() + i);
+			i--;
+		}
+	}
+}
+
+float generateRandomFloat() {
+	static std::random_device rd;  
+	static std::mt19937 gen(rd());
+	std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+	return dist(gen);
+}
+
+void generateCars() {
+	if (lastGeneratedCar > 400.0f) {
+		float value = generateRandomFloat();
+		if (value < 0.15f) {
+			generatedCars.push_back(Car(950.0f, -40.0f, false));
+			lastGeneratedCar = 0.0f;
+		}
+		else lastGeneratedCar -= 100.0f;
+	}
+
+	if (lastGeneratedCarOpposite > 400.0f) {
+		float value = generateRandomFloat();
+		if (value < 0.05f) {
+			generatedCars.push_back(Car(950.0f, 40.0f, true));
+			lastGeneratedCarOpposite = 0.0f;
+		}
+		else lastGeneratedCarOpposite -= 100.0f;
+	}
+}
+
+void drawCars() {
+	for (auto x : generatedCars) {
+		x.drawCar();
+	}
 }
 
 void idleFunction(int val) {
@@ -697,7 +780,10 @@ void idleFunction(int val) {
 		glutTimerFunc(500, idleFunction, 0);
 		return;
 	}
-	posXGreenCar += speedGreenCar;
+
+	updatePosition();
+	eraseCars();
+	generateCars();
 
 	// input
 	if (keyStates['w'] || keyStates['W'])
@@ -712,21 +798,20 @@ void idleFunction(int val) {
 	
 	if (keyStates['a'] || keyStates['A'])
 	{
-		if (!colide) turningAngle += 2.0f;
+		if (!colide) drivenCar.turningAngle += 1.5f;
 	}
 	
 	if (keyStates['d'] || keyStates['D'])
 	{
-		if (!colide) turningAngle -= 2.0f;
+		if (!colide) drivenCar.turningAngle -= 1.5f;
 	}
 
 	recalcAngle();
-	// posXRedCar += speedRedCar * cos(glm::radians(turningAngle));
-	posYRedCar += speedRedCar * sin(glm::radians(turningAngle));
+	drivenCar.carPozY += speedDrivenCar * sin(glm::radians(drivenCar.turningAngle));
 	glutPostRedisplay();
 	glutTimerFunc(timer, idleFunction, 0);
 
-	distance += speedRedCar;
+	distance += speedDrivenCar;
 	if (distance > winWidth)
 	{
 		distance -= winWidth;
@@ -745,12 +830,12 @@ void keyBoardFunc(unsigned char key, int x, int y)
 
 	switch (key)
 	{
-		case 'a': leftTurn	= true;	break;
-		case 'A': leftTurn	= true;	break;
-		case 'd': rightTurn = true; break;
-		case 'D': rightTurn = true; break;
-		case 's': brake		= true;	break;
-		case 'S': brake		= true;	break;
+		case 'a': drivenCar.leftTurn  = true;	break;
+		case 'A': drivenCar.leftTurn  = true;	break;
+		case 'd': drivenCar.rightTurn = true;	break;
+		case 'D': drivenCar.rightTurn = true;	break;
+		case 's': drivenCar.brake	  = true;	break;
+		case 'S': drivenCar.brake	  = true;	break;
 	}
 }
 
@@ -760,92 +845,21 @@ void keyBoardUpFunc(unsigned char key, int x, int y)
 
 	switch (key)
 	{
-		case 'a': leftTurn	= false; break;
-		case 'A': leftTurn	= false; break;
-		case 'd': rightTurn = false; break;
-		case 'D': rightTurn = false; break;
-		case 's': brake		= false; break;
-		case 'S': brake		= false; break;
+	case 'a': drivenCar.leftTurn  = false;	break;
+	case 'A': drivenCar.leftTurn  = false;	break;
+	case 'd': drivenCar.rightTurn = false;	break;
+	case 'D': drivenCar.rightTurn = false;	break;
+	case 's': drivenCar.brake     = false;	break;
+	case 'S': drivenCar.brake     = false;	break;
 	}
 }
 
-// TODO: de adaugat alte culori + de retinut culoarea in struct
-glm::vec4 getRandomCarColor()
-{
-	static const std::vector<glm::vec4> colors = {
-		glm::vec4(0.502f, 0.612f, 0.075f, 1.0f),
-		glm::vec4(0.925f, 0.925f, 0.639f, 1.0f),
-		glm::vec4(1.0f, 0.918f, 0.38f, 1.0f),
-		glm::vec4(0.929f, 0.549f, 0.616f, 1.0f),
-		glm::vec4(0.282f, 0.792f, 0.894f, 1.0f),
-		glm::vec4(1.0f, 0.455f, 0.0f, 1.0f),
-		glm::vec4(0.149f, 0.737f, 0.6f, 1.0f)
-	};
-
-	int randomIndex = std::rand() % colors.size();
-	return colors[randomIndex];
-}
 
 void RenderCars() {
-	glBindVertexArray(VaoIdCars);
-
-	//greencar
-	glm::mat4 myMatrix = resizeMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(posXGreenCar, 0.0f, 0.0f));
-	glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
-	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(0));
-
-	//redCar
-	glUniform1i(codColLocation, codCol);
-	myMatrix = resizeMatrix * glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, posYRedCar, 0.0f))
-							* glm::translate(glm::mat4(1.0f), glm::vec3(xMin + 50, -40, 0.0f))
-							* glm::rotate(glm::mat4(1.0f), glm::radians(turningAngle), glm::vec3(0.0f, 0.0f, 1.0f))
-							* glm::translate(glm::mat4(1.0f), glm::vec3(-xMin - 50, 40, 0.0f));
-	glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
-	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(4 * sizeof(GLuint)));
-	glUniform1i(codColLocation, 0);
-
-	// TODO: test
-	// new car design
 	glBindVertexArray(VaoIdCar);
+	drivenCar.drawCar();
+	drawCars();
 
-	myMatrix = resizeMatrix; // TODO: adauga translate + rotate
-	glUniformMatrix4fv(myMatrixUniformLocation, 1, GL_FALSE, &myMatrix[0][0]);
-
-	glUniform1i(changeCarColorUniformLocation, 1);
-	glm::vec4 newColor = glm::vec4(1.0f, 0.455f, 0.0f, 1.0f);
-	glUniform4fv(newCarColorUniformLocation, 1, &newColor[0]);
-
-	glDrawElements(GL_QUADS, 12, GL_UNSIGNED_INT, (void*)(0));
-
-	glUniform1i(changeCarColorUniformLocation, 0);
-
-	codCol = 0;
-	if (brake)
-	{
-		codCol = 3;
-	}
-	glUniform1i(codColLocation, codCol);
-	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(12 * sizeof(GLuint)));
-	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(16 * sizeof(GLuint)));
-
-	codCol = 0;
-	if (leftTurn)
-	{
-		codCol = 2;
-	}
-	glUniform1i(codColLocation, codCol);
-	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(20 * sizeof(GLuint)));
-
-	codCol = 0;
-	if (rightTurn)
-	{
-		codCol = 2;
-	}
-	glUniform1i(codColLocation, codCol);
-	glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void*)(24 * sizeof(GLuint)));
-
-	codCol = 0;
-	glUniform1i(codColLocation, codCol);
 }
 
 void RenderFunction(void)
