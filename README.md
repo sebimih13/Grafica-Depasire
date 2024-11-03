@@ -10,3 +10,6 @@ DEPASIRE: Simulati o "depasire": o masina / un dreptunghi se deplaseaza uniform 
 
 # Documentatie
 [Link](https://docs.google.com/document/d/1Hs0_prqeFDZzJuZ2R9B6r4DHbtY9oYFaWaB4jYjM6P0/edit?usp=sharing)
+
+# Demo
+<img src="https://github.com/sebimih13/Grafica-Depasire/blob/main/.github/resources/demo.gif">
