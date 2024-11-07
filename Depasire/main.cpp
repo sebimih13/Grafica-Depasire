@@ -593,8 +593,11 @@ public:
 			glm::vec4(1.0f, 0.455f, 0.0f, 1.0f),
 			glm::vec4(0.149f, 0.737f, 0.6f, 1.0f)
 		};
-
-		int randomIndex = std::rand() % colors.size();
+		
+		static std::random_device rd;
+		static std::mt19937 gen(rd());
+		std::uniform_int_distribution<int> dist(0, colors.size() - 1);
+		int randomIndex = dist(gen);
 		return colors[randomIndex];
 	}
 
@@ -653,6 +656,7 @@ void resetState() {
 	drivenCar.carPozX = -750.0f;
 	drivenCar.carPozY = 0.0f;
 	drivenCar.turningAngle = 0.0f;
+	drivenCar.color = drivenCar.getRandomCarColor();
 	speedDrivenCar = 1.5f;
 	codCol = 0;
 	colide = false;
@@ -696,10 +700,10 @@ void checkColision() {
 void recalcSpeed(unsigned int lastSpeedKey) {
 	switch (lastSpeedKey) {
 	case 'w':
-		speedDrivenCar += 0.002f * (15.0f - speedDrivenCar);
+		speedDrivenCar += 0.0035f * (15.0f - speedDrivenCar);
 		break;
 	case 's':
-		speedDrivenCar -= 0.08f;
+		speedDrivenCar -= 0.18f;
 		break;
 	default:
 		speedDrivenCar -= 0.005f;
