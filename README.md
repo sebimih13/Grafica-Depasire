@@ -9,7 +9,7 @@ Mihalache Sebastian Stefan ($352$)
 DEPASIRE: Simulati o "depasire": o masina / un dreptunghi se deplaseaza uniform (prin translatie), un alt dreptunghi vine din spate (tot prin translatii/rotatii), la un moment dat intra in depasire, apoi trece in fata primului.
 
 # Documentatie
-[Link](https://docs.google.com/document/d/1Hs0_prqeFDZzJuZ2R9B6r4DHbtY9oYFaWaB4jYjM6P0/edit?usp=sharing)
+[Link](https://docs.google.com/document/d/1Hs0_prqeFDZzJuZ2R9B6r4DHbtY9oYFaWaB4jYjM6P0/edit?usp=sharing) sau [Link](https://github.com/sebimih13/Grafica-Depasire/blob/main/Documentatie.pdf)  
 
 # Demo
 <img src="https://github.com/sebimih13/Grafica-Depasire/blob/main/.github/resources/demo.gif">
